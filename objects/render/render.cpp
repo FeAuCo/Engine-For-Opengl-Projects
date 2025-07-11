@@ -16,7 +16,7 @@ int rendering::Obj::getComponentsPerVertex() const{
     return this->componentsPerVertex;
 }
 
-std::vector<double> rendering::Obj::getVertices() const{
+std::vector<float> rendering::Obj::getVertices() const{
     return this->vertices;
 }
 
@@ -24,7 +24,7 @@ std::vector<unsigned int> rendering::Obj::getIndices() const{
     return this->indices;
 }
 
-void rendering::Obj::setBuffersForRendering(const std::vector<double>& vertices, const std::vector<unsigned int>& indices){
+void rendering::Obj::setBuffersForRendering(const std::vector<float>& vertices, const std::vector<unsigned int>& indices){
     this->vertices = vertices;
 
     glGenVertexArrays(1, &(this->vao));
@@ -32,7 +32,7 @@ void rendering::Obj::setBuffersForRendering(const std::vector<double>& vertices,
 
     glGenBuffers(1, &(this->vbo));
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(double), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
     
     if (!indices.empty()){
         this->indices = indices;
@@ -45,7 +45,7 @@ void rendering::Obj::setBuffersForRendering(const std::vector<double>& vertices,
 
 void rendering::Obj::setVertexAttributes(const int& componentsPerVertex, const int& shaderIndex, const bool& normalize){
     this->componentsPerVertex = componentsPerVertex;
-    glVertexAttribPointer(shaderIndex, this->componentsPerVertex, GL_DOUBLE, normalize, (this->componentsPerVertex) * sizeof(double),  0);
+    glVertexAttribPointer(shaderIndex, this->componentsPerVertex, GL_FLOAT, normalize, (this->componentsPerVertex) * sizeof(float),  0);
     glEnableVertexAttribArray(0);
 }
 

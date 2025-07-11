@@ -9,7 +9,7 @@ namespace rendering{
         private:
             unsigned int vbo, ibo = 0, vao;
             int componentsPerVertex;
-            std::vector<double> vertices;
+            std::vector<float> vertices;
             std::vector<unsigned int> indices;
 
         public:
@@ -21,11 +21,11 @@ namespace rendering{
 
             int getComponentsPerVertex() const;
 
-            std::vector<double> getVertices() const;
+            std::vector<float> getVertices() const;
 
             std::vector<unsigned int> getIndices() const;
 
-            void setBuffersForRendering(const std::vector<double>& vertices, const std::vector<unsigned int>& indices = {});
+            void setBuffersForRendering(const std::vector<float>& vertices, const std::vector<unsigned int>& indices = {});
 
             void setVertexAttributes(const int& componentsPerVertex, const int& shaderIndex, const bool& normalize = GL_FALSE);
 
