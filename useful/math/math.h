@@ -3,5 +3,5 @@
 #include <cmath>
 
 namespace math{
-    double isZero(const double& number, const int& acc, const int& coef);
+    float isZero(const float& number, const int& acc, const int& coef);
 }
