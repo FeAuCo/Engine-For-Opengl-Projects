@@ -6,7 +6,7 @@
 #include <iostream>
 
 namespace fv_shader{
-    unsigned int compileShader(unsigned int type, const std::string& source);
+    unsigned int compileShader(unsigned int type, const char* source);
 
-    unsigned int createShader(const std::string& vertexShader, const std::string& fragmentShader);
+    unsigned int createShader(const char* vertexShader, const char* fragmentShader);
 }
