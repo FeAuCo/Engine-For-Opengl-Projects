@@ -21,6 +21,8 @@ namespace texture{
 
             int getHeight();
 
+            GLenum getType();
+
             unsigned char* getImageData();
 
             Texture();

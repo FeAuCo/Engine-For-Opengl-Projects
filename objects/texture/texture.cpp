@@ -14,6 +14,10 @@ int texture::Texture::getHeight(){
     return this->height;
 }
 
+GLenum texture::Texture::getType(){
+    return this->type;
+};
+
 unsigned char* texture::Texture::getImageData(){
     return this->imageData;
 }
