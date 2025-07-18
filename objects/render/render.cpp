@@ -12,8 +12,8 @@ unsigned int rendering::Obj::getIBO() const{
     return this->ibo;
 }
 
-int rendering::Obj::getComponentsPerVertex() const{
-    return this->componentsPerVertex;
+unsigned int rendering::Obj::getVerticesAmount() const{
+    return this->verticesAmount;
 }
 
 std::vector<float> rendering::Obj::getVertices() const{
@@ -32,8 +32,9 @@ void rendering::Obj::setBuffersForRendering(const GLenum& type, const std::vecto
 
     glGenBuffers(1, &(this->vbo));
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), type);
-    
+
     if (!indices.empty()){
         this->indices = indices;
 
@@ -43,10 +44,32 @@ void rendering::Obj::setBuffersForRendering(const GLenum& type, const std::vecto
     }
 }
 
-void rendering::Obj::setVertexAttributes(const int& componentsPerVertex, const int& shaderIndex, const bool& normalize){
-    this->componentsPerVertex = componentsPerVertex;
-    glVertexAttribPointer(shaderIndex, this->componentsPerVertex, GL_FLOAT, normalize, (this->componentsPerVertex) * sizeof(float),  0);
-    glEnableVertexAttribArray(0);
+void rendering::Obj::setVertexAttributes(const int& componentsPerPos, const int& shaderIndexPos, const int& componentsPerColor, const int& shaderIndexColor,
+                                                    const int& componentsPerTexture, const int& shaderIndexTexture, const bool& normalize, const int& verticesRepetion){
+    this->verticesRepetion = verticesRepetion;
+
+    this->componentsPerPos = componentsPerPos;
+    this->componentsPerColor = componentsPerColor;
+    this->componentsPerTexture = componentsPerTexture;
+
+    int offsetPos = (this->componentsPerPos) * sizeof(float);
+    int offsetColor = (this->componentsPerColor) * sizeof(float);
+    int offsetTexture = (this->componentsPerTexture) * sizeof(float);
+
+    this->verticesAmount = (this->vertices).size() / (this->componentsPerPos + this->componentsPerColor + this->componentsPerTexture) / (this->verticesRepetion);
+
+    glVertexAttribPointer(shaderIndexPos, this->componentsPerPos, GL_FLOAT, normalize, offsetPos + offsetColor + offsetTexture,  0);
+    glEnableVertexAttribArray(shaderIndexPos);
+
+    if (this->componentsPerColor != 0){
+        glVertexAttribPointer(shaderIndexColor, this->componentsPerColor, GL_FLOAT, normalize, offsetPos + offsetColor + offsetTexture, reinterpret_cast<void*>(static_cast<uintptr_t>(offsetPos)));
+        glEnableVertexAttribArray(shaderIndexColor);
+    }
+    
+    if (this->componentsPerTexture != 0){
+        glVertexAttribPointer(shaderIndexTexture, this->componentsPerTexture, GL_FLOAT, normalize, offsetPos + offsetColor + offsetTexture, reinterpret_cast<void*>(static_cast<uintptr_t>(offsetPos + offsetColor)));
+        glEnableVertexAttribArray(shaderIndexTexture);
+    }
 }
 
 void rendering::Obj::clearObjBuffers(){
@@ -58,6 +81,7 @@ void rendering::Obj::clearObjBuffers(){
 
     if (this->ibo != 0){
         glDeleteBuffers(1, &(this->ibo));
+
         this->ibo = 0;
     }
 }
@@ -66,7 +90,7 @@ void rendering::Obj::render(){
     glBindVertexArray(this->vao);
 
     if (this->ibo == 0){
-        glDrawArrays(GL_TRIANGLES, 0, (this->vertices).size() / (this->componentsPerVertex));
+        glDrawArrays(GL_TRIANGLES, 0, this->verticesAmount);
     }
 
     else {
@@ -83,36 +107,23 @@ void rendering::Obj::updateVertices(const std::vector<float>& newVertices){
     this->vertices = newVertices;
 
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-
-    void* buffer = glMapBufferRange(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), GL_MAP_WRITE_BIT);
-
-    if (buffer) {
-        memcpy(buffer, vertices.data(), vertices.size() * sizeof(float));
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-    }
+    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(float), vertices.data());
 }
 
 void rendering::Obj::rotateVertices3D(const quaternions::Quaternion& q){
-    std::vector<float> newVertices;
-    std::vector<float> vertex;
+    int stride = (this->componentsPerPos) + (this->componentsPerColor) + (this->componentsPerTexture);
 
+    std::vector<float> newVertices = this->vertices;
     quaternions::Quaternion h;
     
-    for (float vertexComponent : this->vertices){
-        vertex.emplace_back(vertexComponent);
+    for (int i = 0; i < vertices.size(); i += stride){
+        h = quaternions::createH(vertices[i], vertices[i + 1], vertices[i + 2]);
+        quaternions::Quaternion rotated = quaternions::rotate(q, h);
 
-        if (vertex.size() == 3){
-            h = quaternions::createH(vertex[0], vertex[1], vertex[2]);
-            quaternions::Quaternion rotated = quaternions::rotate(q, h);
-
-            newVertices.emplace_back(rotated[1]);
-            newVertices.emplace_back(rotated[2]);
-            newVertices.emplace_back(rotated[3]);
-
-            vertex.clear();
-        }
-
+        newVertices[i] = rotated[1];
+        newVertices[i + 1] = rotated[2];
+        newVertices[i + 2] = rotated[3];
     }
-
+    
     this->updateVertices(newVertices);
 }

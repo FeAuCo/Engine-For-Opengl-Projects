@@ -10,7 +10,7 @@ namespace rendering{
     class Obj{
         private:
             unsigned int vbo, ibo = 0, vao;
-            int componentsPerVertex;
+            int componentsPerPos, componentsPerColor, componentsPerTexture, verticesRepetion, verticesAmount;
             std::vector<float> vertices;
             std::vector<unsigned int> indices;
 
@@ -21,7 +21,7 @@ namespace rendering{
             
             unsigned int getIBO() const;
 
-            int getComponentsPerVertex() const;
+            unsigned int getVerticesAmount() const;
 
             std::vector<float> getVertices() const;
 
@@ -29,7 +29,8 @@ namespace rendering{
 
             void setBuffersForRendering(const GLenum& type, const std::vector<float>& vertices, const std::vector<unsigned int>& indices = {});
 
-            void setVertexAttributes(const int& componentsPerVertex, const int& shaderIndex, const bool& normalize = GL_FALSE);
+            void setVertexAttributes(const int& componentsPerPos, const int& shaderIndexPos = 0, const int& componentsPerColor = 0, const int& shaderIndexColor = 1,
+                                                    const int& componentsPerTexture = 0, const int& shaderIndexTexture = 2, const bool& normalize = GL_FALSE, const int& verticesRepetion = 1);
             
             void clearObjBuffers();
 

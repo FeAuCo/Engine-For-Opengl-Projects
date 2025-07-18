@@ -39,10 +39,12 @@ quaternions::Quaternion quaternions::Quaternion::conjugate() const{
 }
 
 void quaternions::Quaternion::normalize(){
-    this->components[0] /= this->getAbs();
-    this->components[1] /= this->getAbs();
-    this->components[2] /= this->getAbs();
-    this->components[3] /= this->getAbs();
+    if (this->getAbs() != 0){
+        this->components[0] /= this->getAbs();
+        this->components[1] /= this->getAbs();
+        this->components[2] /= this->getAbs();
+        this->components[3] /= this->getAbs();
+    }
 }
 
 quaternions::Quaternion quaternions::Quaternion::operator*(const quaternions::Quaternion& other) const{
