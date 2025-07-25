@@ -9,6 +9,4 @@
 
 namespace handler{
     std::string parse(const std::string& filePath);
-
-    int applyBasicFVShader(const float& r, const float& g, const float& b, const float& a);
 }
